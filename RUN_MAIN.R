@@ -35,6 +35,22 @@ if (!file.exists(FILE_PATHS$hex_compositions)) {
   cat("[1/4] Hex database found — skipping creation.\n\n")
 }
 
+# --- 1b. Connectivity spatial preprocessing ------------------------------------
+# Downloads OSM roads + markets, builds friction raster, computes travel-time
+# cost surface, and extracts per-hex accessibility scores.
+# Checkpoint: skipped if connectivity_accessibility_by_cell.csv already exists.
+# NOTE: If intermediate files (roads_osm.shp, friction_raster.tif, etc.) were
+# previously built for Ward 28 only, delete them so they are rebuilt for the
+# full study area.
+
+if (!file.exists(FILE_PATHS$connectivity_access)) {
+  cat("[1b/4] Running connectivity spatial preprocessing...\n")
+  source("indicators/CONNECTIVITY_PREP.R")
+  cat("[1b/4] Done.\n\n")
+} else {
+  cat("[1b/4] Connectivity accessibility data found — skipping prep.\n\n")
+}
+
 # --- 2. Calculate all agroecological indicators --------------------------------
 # Input:  hex compositions CSV  +  baseline data
 # Output: v3_final_results_with_composite_scores.csv

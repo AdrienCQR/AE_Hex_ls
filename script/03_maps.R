@@ -304,22 +304,62 @@ p <- do.call(create_discrete_map, c(list(
 save_map(p, "synergy_score_sum")
 
 # =============================================================================
-# 7. Value chain connectivity (local food system orientation)
+# 7. Connectivity — composite score (orientation + accessibility)
 # =============================================================================
 
-map_data$connectivity_score_brut_rd <- round(map_data$connectivity_score_brut, 1)
+map_data$connectivity_score_rd <- round(map_data$connectivity_score_brut, 2)
 
 p <- do.call(create_discrete_map, c(list(
   data              = map_data,
-  variable          = "connectivity_score_brut_rd",
-  legend_title      = "Local Food System\nOrientation",
+  variable          = "connectivity_score_rd",
+  legend_title      = "Local Food System\nConnectivity\n(composite)",
   n_classes         = 5, style = "jenks",
   use_paletteer     = TRUE,
   paletteer_palette = "beyonce::X7",
-  direction         = -1
+  direction         = 1
 ), bd))
 
-save_map(p, "connectivity_score_brut_rd")
+save_map(p, "connectivity_score_composite")
+
+# =============================================================================
+# 7b. Connectivity — orientation sub-score
+# =============================================================================
+
+if ("orientation_score" %in% colnames(map_data)) {
+  map_data$orientation_score_rd <- round(map_data$orientation_score, 2)
+
+  p <- do.call(create_discrete_map, c(list(
+    data              = map_data,
+    variable          = "orientation_score_rd",
+    legend_title      = "Local Food System\nOrientation\n(subsistence vs. export)",
+    n_classes         = 5, style = "jenks",
+    use_paletteer     = TRUE,
+    paletteer_palette = "beyonce::X7",
+    direction         = 1
+  ), bd))
+
+  save_map(p, "connectivity_orientation_score")
+}
+
+# =============================================================================
+# 7c. Connectivity — market accessibility sub-score
+# =============================================================================
+
+if ("accessibility_score" %in% colnames(map_data)) {
+  map_data$accessibility_score_rd <- round(map_data$accessibility_score, 2)
+
+  p <- do.call(create_discrete_map, c(list(
+    data              = map_data,
+    variable          = "accessibility_score_rd",
+    legend_title      = "Market Physical\nAccessibility\n(proximity score)",
+    n_classes         = 5, style = "jenks",
+    use_paletteer     = TRUE,
+    paletteer_palette = "rcartocolor::Teal",
+    direction         = 1
+  ), bd))
+
+  save_map(p, "connectivity_accessibility_score")
+}
 
 # =============================================================================
 # 8. Equity (reversed Gini)

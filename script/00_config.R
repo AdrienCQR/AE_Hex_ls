@@ -26,7 +26,15 @@ FILE_PATHS <- list(
   output_results  = "results/v3_final_results_with_composite_scores.csv",
 
   # Map outputs folder (steps 3-4)
-  maps_dir        = "results/maps/"
+  maps_dir        = "results/maps/",
+
+  # Connectivity spatial intermediates (built by CONNECTIVITY_PREP.R)
+  market_points_osm    = "data/processed/market_points_osm.shp",
+  market_points_manual = "data/processed/manual_market_points_buffered.shp",
+  roads_osm            = "data/processed/roads_osm.shp",
+  friction_raster      = "data/processed/friction_raster.tif",
+  time_access_raster   = "data/processed/time_access_raster.tif",
+  connectivity_access  = "data/processed/connectivity_accessibility_by_cell.csv"
 )
 
 # --- Indicators to run --------------------------------------------------------
@@ -47,7 +55,8 @@ INDICATORS_TO_RUN <- list(
   FOOD_SECURITY          = FALSE,
   VULNERABILITY          = FALSE,
   NUTRITION_DIVERSITY    = FALSE,
-  CONNECTIVITY_VAL_CHAIN = TRUE,
+  CONNECTIVITY           = TRUE,   # composite: orientation + accessibility
+  CONNECTIVITY_VAL_CHAIN = FALSE,  # replaced by CONNECTIVITY
   SYNERGY                = TRUE,
   AE_COMPOSITE           = TRUE,
   FSN_COMPOSITE          = FALSE
@@ -101,6 +110,12 @@ residue_to_grain_ratio  <- 1.5
 residue_degradation     <- 0.75
 residue_feed_share      <- 1.0
 damage_level            <- 0.70   # Fraction of yield remaining after losses
+
+# --- Connectivity parameters --------------------------------------------------
+
+# Weight between orientation and accessibility dimensions (must sum to 1).
+# 0.5 = equal weight; adjust for sensitivity analysis.
+connectivity_alpha <- 0.5
 
 # --- Wood parameters ----------------------------------------------------------
 

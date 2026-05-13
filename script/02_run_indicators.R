@@ -77,7 +77,9 @@ res <- run_all_indicators(
     threshold_woodland_ha_per_capita = threshold_woodland_ha_per_capita,
     woody_coefficient          = woody_coefficient,
     regeneration_years         = regeneration_years,
-    wood_demand_per_ha_tobacco = wood_demand_per_ha_tobacco
+    wood_demand_per_ha_tobacco = wood_demand_per_ha_tobacco,
+    connectivity_access        = FILE_PATHS$connectivity_access,
+    connectivity_alpha         = connectivity_alpha
   ),
   synergy_opts = list(
     palette   = "viridis::magma",

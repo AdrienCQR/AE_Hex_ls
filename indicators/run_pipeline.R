@@ -22,7 +22,7 @@ run_all_indicators <- function(
     eco_div       = "indicators/ECO_DIV.R",
     fairness      = "indicators/FAIRNESS.R",
     wood          = "indicators/WOOD.R",
-    connectivity  = "indicators/CONNECTIVITY_VAL_CHAIN.R",
+    connectivity  = "indicators/CONNECTIVITY.R",
     synergy       = "indicators/SYNERGY.R"
   ),
   synergy_opts       = list(),
@@ -149,8 +149,21 @@ run_all_indicators <- function(
                                 need("TOTAL_AREA_HA")))
   }
 
+  if (isTRUE(INDICATORS_TO_RUN$CONNECTIVITY)) {
+    msg("  CONNECTIVITY (orientation + accessibility)\n"); source(source_files$connectivity)
+    indicators_results <- timed("CONNECTIVITY",
+      calculate_connectivity(
+        indicators_results,
+        maize_share        = need("maize_share"),
+        legume_share       = need("legume_share"),
+        tobacco_share      = need("tobacco_share"),
+        accessibility_file = need("connectivity_access"),
+        alpha              = need("connectivity_alpha")
+      ))
+  }
+
   if (isTRUE(INDICATORS_TO_RUN$CONNECTIVITY_VAL_CHAIN)) {
-    msg("  CONNECTIVITY_VAL_CHAIN\n"); source(source_files$connectivity)
+    msg("  CONNECTIVITY_VAL_CHAIN\n"); source("indicators/CONNECTIVITY_VAL_CHAIN.R")
     indicators_results <- timed("CONNECTIVITY_VAL_CHAIN",
       calculate_value_chain_connectivity(indicators_results,
                                          need("maize_share"), need("legume_share"),
