@@ -128,7 +128,7 @@ AE_Hex_ls/
 │   ├── 03_maps.R                       <- step 3
 │   └── 04_synergies.R                  <- step 4
 ├── indicators/
-│   ├── run_pipeline.R                  <- indicator engine
+│   ├── run_pipeline.R                  <- run all indicators
 │   ├── tree_hedges_processing.R
 │   ├── SOIL_HEALTH.R
 │   ├── BIODIV.R
@@ -138,7 +138,6 @@ AE_Hex_ls/
 │   ├── AGRO_PASTO_LOOP.R
 │   ├── ECO_DIV.R
 │   ├── FAIRNESS.R
-│   ├── WOOD.R
 │   ├── CONNECTIVITY_VAL_CHAIN.R
 │   └── SYNERGY.R
 ├── data/

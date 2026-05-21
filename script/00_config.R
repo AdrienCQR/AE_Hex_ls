@@ -43,7 +43,7 @@ FILE_PATHS <- list(
 INDICATORS_TO_RUN <- list(
   SOIL_HEALTH            = TRUE,
   BIODIV                 = TRUE,
-  WOOD                   = TRUE,
+  WOOD                   = FALSE,
   N_LITTER_TREES         = TRUE,
   N_LEGUMES_ROTATION     = TRUE,
   GRAZING_CC             = TRUE,

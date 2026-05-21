@@ -1,5 +1,5 @@
 # Fairness indicator — weighted Gini coefficient over stakeholder satisfaction scores.
-# Satisfaction = dot product of group land-use preferences and landscape composition.
+# Satisfaction = Stakeholder groups land-use preferences and landscape composition.
 # Fairness score = 1 - Gini (higher = more equitable distribution of satisfaction).
 calculate_fairness_weighted <- function(scenarios_raw, indicators_results) {
   preferences_file <- "data/raw/data_indicators/RESULTS_mean_pref_LU_groups.csv"

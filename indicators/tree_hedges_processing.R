@@ -1,4 +1,4 @@
-# Extract tree hedges from cropland and grassland land use classes.
+# Extract tree hedges as wooded areas from cropland and grassland land use classes.
 # Creates a new 'tree_hedges' class based on fixed cover fractions.
 extract_tree_hedges <- function(scenarios_df, tree_hedge_cropland, tree_hedge_grassland) {
   required_cols <- c("cropland", "grassland")
