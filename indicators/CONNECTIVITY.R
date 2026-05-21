@@ -153,7 +153,8 @@ calculate_connectivity <- function(
     if (reverse) 1 - norm else norm
   }
 
-  if (normalization_method == "empirical") {
+  # Normalisation method choice: empirical = default, based on observed min/max in the dataset; theoretical = based on predefined bounds.
+  if (normalization_method == "empirical") {  
     # Orientation: higher = more subsistence-oriented = better → keep direction
     orientation_score  <- normalize_minmax(orientation_raw,  reverse = FALSE)
     # Accessibility: shorter travel time = better → reverse so high score = close

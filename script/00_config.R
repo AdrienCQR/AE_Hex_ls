@@ -56,7 +56,7 @@ INDICATORS_TO_RUN <- list(
   VULNERABILITY          = FALSE,
   NUTRITION_DIVERSITY    = FALSE,
   CONNECTIVITY           = TRUE,   # composite: orientation + accessibility
-  CONNECTIVITY_VAL_CHAIN = FALSE,  # replaced by CONNECTIVITY
+  CONNECTIVITY_VAL_CHAIN = FALSE,  # old indicator version replaced by CONNECTIVITY
   SYNERGY                = TRUE,
   AE_COMPOSITE           = TRUE,
   FSN_COMPOSITE          = FALSE
@@ -113,7 +113,7 @@ damage_level            <- 0.70   # Fraction of yield remaining after losses
 
 # --- Connectivity parameters --------------------------------------------------
 
-# Weight between orientation and accessibility dimensions (must sum to 1).
+# Weight between orientation and accessibility dimensions of the connectivity indicator.
 # 0.5 = equal weight; adjust for sensitivity analysis.
 connectivity_alpha <- 0.5
 

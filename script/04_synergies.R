@@ -514,3 +514,7 @@ cat(sprintf(
   round(total_to   / total_all * 100),
   round(total_loss / total_all * 100)
 ))
+
+print(syn_mat)
+print(to_mat)
+print(loss_mat)

@@ -312,11 +312,11 @@ map_data$connectivity_score_rd <- round(map_data$connectivity_score_brut, 2)
 p <- do.call(create_discrete_map, c(list(
   data              = map_data,
   variable          = "connectivity_score_rd",
-  legend_title      = "Local Food System\nConnectivity\n(composite)",
+  legend_title      = "Local Food System\nConnectivity",
   n_classes         = 5, style = "jenks",
   use_paletteer     = TRUE,
   paletteer_palette = "beyonce::X7",
-  direction         = 1
+  direction         = -1
 ), bd))
 
 save_map(p, "connectivity_score_composite")
@@ -325,7 +325,7 @@ save_map(p, "connectivity_score_composite")
 # 7b. Connectivity — orientation sub-score
 # =============================================================================
 
-if ("orientation_score" %in% colnames(map_data)) {
+if ("orientation_score_brut" %in% colnames(map_data)) {
   map_data$orientation_score_rd <- round(map_data$orientation_score, 2)
 
   p <- do.call(create_discrete_map, c(list(
@@ -335,7 +335,7 @@ if ("orientation_score" %in% colnames(map_data)) {
     n_classes         = 5, style = "jenks",
     use_paletteer     = TRUE,
     paletteer_palette = "beyonce::X7",
-    direction         = 1
+    direction         = -1
   ), bd))
 
   save_map(p, "connectivity_orientation_score")
@@ -345,7 +345,7 @@ if ("orientation_score" %in% colnames(map_data)) {
 # 7c. Connectivity — market accessibility sub-score
 # =============================================================================
 
-if ("accessibility_score" %in% colnames(map_data)) {
+if ("accessibility_score_brut" %in% colnames(map_data)) {
   map_data$accessibility_score_rd <- round(map_data$accessibility_score, 2)
 
   p <- do.call(create_discrete_map, c(list(
@@ -355,7 +355,7 @@ if ("accessibility_score" %in% colnames(map_data)) {
     n_classes         = 5, style = "jenks",
     use_paletteer     = TRUE,
     paletteer_palette = "rcartocolor::Teal",
-    direction         = 1
+    direction         = -1
   ), bd))
 
   save_map(p, "connectivity_accessibility_score")
@@ -421,3 +421,211 @@ ggsave(
 cat("  Saved:", file.path(output_dir, "map_AE_composite_score.png"), "\n")
 
 cat("  All maps produced.\n")
+
+
+
+
+
+#### Summary statistics per idnicator
+
+
+# Indicator agroecology composite ward level aggregation statistics
+summary(map_data$ae_composite_score2)
+# per wards, 
+
+
+
+# Ensure CRS match and geometries are valid, then intersect and compute area-weighted means.
+library(sf)
+library(dplyr)
+library(tidyverse)
+
+# Recycling
+summary(map_data$max_grazing_CC_TLU)
+summary(map_data$final_TLU)
+reduc_TLU <- map_data$final_TLU / map_data$max_grazing_CC_TLU
+summary(reduc_TLU)
+summary(map_data$final_N_manure_per_ha)
+summary(map_data$N_litter_kg_per_maize_ha)
+
+summary(map_data$final_N_total_per_ha)
+
+### Summary P values
+summary(map_data$final_P_total_per_ha)
+
+
+# summary synergy
+summary(map_data$synergy_score_sum)
+
+
+# keep only needed columns from hex layer (add any other attributes you need)
+hex_sf <- map_data %>%
+  st_make_valid() %>%
+  st_transform(st_crs(ward_boundaries)) %>%
+  select(id, ae_composite_score, geometry = geometry)
+
+wards_sf <- ward_boundaries %>%
+  st_make_valid() %>%
+  st_transform(st_crs(hex_sf)) %>%
+  select(wardname, geometry = geometry)
+
+# intersect (this actually cuts hexagons by ward boundaries)
+hex_ward_pieces <- st_intersection(hex_sf, wards_sf)
+
+# compute piece areas (numeric)
+hex_ward_pieces <- hex_ward_pieces %>%
+  mutate(piece_area = as.numeric(st_area(geometry)))
+
+# area-weighted mean per ward (drop geometry for the table)
+ward_ae_table <- hex_ward_pieces %>%
+  st_set_geometry(NULL) %>%
+  group_by(wardname) %>%
+  summarize(
+    mean_ae_composite_score = weighted.mean(
+      ae_composite_score,
+      w = piece_area,
+      na.rm = TRUE
+    ),
+    total_area = sum(piece_area, na.rm = TRUE),
+    n_hexagon_pieces = n(),
+    .groups = "drop"
+  ) %>%
+  arrange(desc(mean_ae_composite_score))
+
+# add sd and n_hexagons per ward
+ward_ae_table <- ward_ae_table %>%
+  left_join(
+    hex_ward_pieces %>%
+      st_set_geometry(NULL) %>%
+      group_by(wardname) %>%
+      summarize(
+        sd_ae_composite_score = sd(ae_composite_score, na.rm = TRUE),
+        n_hexagons = n_distinct(id),
+        .groups = "drop"
+      ),
+    by = "wardname"
+  )
+
+
+# join scores back to ward polygons (spatial result)
+wards_with_scores <- wards_sf %>%
+  left_join(ward_ae_table, by = "wardname")
+
+# return a useful object
+ward_scores_result <- list(table = ward_ae_table, wards_sf = wards_with_scores)
+ward_scores_result
+
+# print 5 top wards by score
+print(head(ward_ae_table, 5))
+
+#print 5 bottom wards by score
+print(tail(ward_ae_table, 5))
+
+
+# select top score of N_per_maize_ha from map_data
+summary(map_data$final_N_total_per_ha)
+top_N_values <- map_data %>%
+  st_set_geometry(NULL) %>%
+  arrange(desc(final_N_total_per_ha)) %>%
+  slice_head(n = 5) %>%
+  select(id, final_N_total_per_ha)
+
+# use the id to bring the map_data lines and see the landscapes with top N values
+top_N_landscapes <- map_data %>%
+  filter(id %in% top_N_values$id) %>%
+  select(id, final_N_total_per_ha, geometry)
+
+#in map data, select the landsacpe var
+str(map_data)
+
+
+library(tidyverse)
+library(sf)
+
+
+# Get landscape with final_N_total_per_ha >70
+top_N_values <- map_data %>%
+  st_set_geometry(NULL) %>%
+  filter(final_N_total_per_ha > 70) %>%
+  select(id, final_N_total_per_ha)
+
+
+# Select landscape composition variables for top 5
+landscape_vars <- c(
+  "wetland_grassland",
+  "horticulture",
+  "cropland",
+  "mineral_bare_soil",
+  "dense_woodland",
+  "open_woodland",
+  "grassland",
+  "tree_hedges",
+  "urban",
+  "water"
+)
+
+top_landscapes_data <- map_data %>%
+  st_set_geometry(NULL) %>%
+  filter(id %in% top_N_values$id) %>%
+  select(id, all_of(landscape_vars))
+
+# Reshape data to long format
+top_landscapes_long <- top_landscapes_data %>%
+  pivot_longer(
+    cols = -id,
+    names_to = "landscape_type",
+    values_to = "proportion"
+  )
+
+# Calculate mean and standard error for each landscape type
+summary_stats <- top_landscapes_long %>%
+  group_by(landscape_type) %>%
+  summarise(
+    mean_prop = mean(proportion),
+    se = sd(proportion) / sqrt(n()),
+    sd = sd(proportion)
+  ) %>%
+  mutate(landscape_type = factor(landscape_type, levels = landscape_vars))
+
+# Create bar plot with error bars
+ggplot(
+  summary_stats,
+  aes(x = reorder(landscape_type, -mean_prop), y = mean_prop)
+) +
+  geom_col(fill = "steelblue", alpha = 0.7) +
+  geom_errorbar(
+    aes(ymin = mean_prop - se, ymax = mean_prop + se),
+    width = 0.3,
+    size = 0.8
+  ) +
+  labs(
+    title = "Top Landscape Composition RECYCLING\n>70 Nkg/maize ha",
+    # subtitle = nrow(top_N_values),
+    subtitle = paste("Number of landscapes:", nrow(top_N_values)),
+    x = "",
+    y = "Mean Proportion ± SE"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 10),
+    plot.title = element_text(face = "bold", size = 14),
+    plot.subtitle = element_text(size = 10)
+  )
+
+
+# Print summary statistics
+print(summary_stats)
+
+
+# mean ae_composite score by ward and standard deviation
+ward_ae_summary <- ward_ae_table %>%
+  summarize(
+    mean_ae_score = mean(mean_ae_composite_score, na.rm = TRUE),
+    sd_ae_score = sd(mean_ae_composite_score, na.rm = TRUE),
+    n_wards = n()
+  )
+print(ward_ae_summary)
+
+
+#print the ward stat table all rows
+print(ward_ae_table, n=24)
