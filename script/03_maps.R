@@ -627,5 +627,6 @@ ward_ae_summary <- ward_ae_table %>%
 print(ward_ae_summary)
 
 
+
 #print the ward stat table all rows
 print(ward_ae_table, n=24)

@@ -40,6 +40,13 @@ This lets you restart from step 3 (maps) without recomputing the indicators.
 - Which indicators to run (`INDICATORS_TO_RUN`)
 - Biophysical parameters (rainfall, land areas, crop shares, livestock, etc.)
 
+> `tree_hedge_cropland` / `tree_hedge_grassland` are derived once upstream by
+> `script/00_prep_tree_hedge_fractions.R` (crosses the LULC map with the
+> Reiner et al., 2023 tree cover map to estimate the share of hedgerows
+> and scattered trees hidden within cropland/grassland). Run it only if the
+> source rasters change — otherwise the fixed percentages already in
+> `00_config.R` remain valid and are applied uniformly to every hexagon.
+
 ### Step 1 — Build hexagonal database (`01_build_hex_database.R`)
 
 Creates the 5 km² hexagonal grid over Murehwa and extracts the LULC composition of each cell.
@@ -123,6 +130,7 @@ AE_Hex_ls/
 ├── NOTICE.md                           <- this file
 ├── script/
 │   ├── 00_config.R                     <- parameters
+│   ├── 00_prep_tree_hedge_fractions.R  <- one-off: derive tree hedge fractions
 │   ├── 01_build_hex_database.R         <- step 1
 │   ├── 02_run_indicators.R             <- step 2
 │   ├── 03_maps.R                       <- step 3
