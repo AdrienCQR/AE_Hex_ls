@@ -99,7 +99,7 @@ run_all_indicators <- function(
     msg("  N_LEGUMES_ROTATION\n"); source(source_files$n_legumes)
     indicators_results <- timed("N_LEGUMES_ROTATION",
       calculate_N_fixed(indicators_results, need("NDFA_rate"),
-                        need("HI_gdnuts"), need("legume_share")))
+                        need("HI_gdnuts"), need("legume_share"), need("maize_share")))
   }
 
   if (isTRUE(INDICATORS_TO_RUN$GRAZING_CC)) {
@@ -150,15 +150,16 @@ run_all_indicators <- function(
   }
 
   if (isTRUE(INDICATORS_TO_RUN$CONNECTIVITY)) {
-    msg("  CONNECTIVITY (orientation + accessibility)\n"); source(source_files$connectivity)
+    msg("  CONNECTIVITY (physical accessibility only)\n"); source(source_files$connectivity)
     indicators_results <- timed("CONNECTIVITY",
       calculate_connectivity(
         indicators_results,
-        maize_share        = need("maize_share"),
-        legume_share       = need("legume_share"),
-        tobacco_share      = need("tobacco_share"),
-        accessibility_file = need("connectivity_access"),
-        alpha              = need("connectivity_alpha")
+        accessibility_file = need("connectivity_access")
+        # --- Orientation-score arguments — disabled, see CONNECTIVITY.R ---
+        # , maize_share   = need("maize_share")
+        # , legume_share  = need("legume_share")
+        # , tobacco_share = need("tobacco_share")
+        # , alpha         = need("connectivity_alpha")
       ))
   }
 
@@ -190,7 +191,9 @@ run_all_indicators <- function(
       ),
       higher_better = c(
         RECYCLING = TRUE, INPUT = TRUE, SOIL_HEALTH = TRUE, BIODIV = TRUE,
-        ECONOMIC_DIV = TRUE, FAIRNESS = TRUE, CONNECT = TRUE
+        ECONOMIC_DIV = TRUE, FAIRNESS = TRUE,
+        # CONNECT = TRUE   # was TRUE when connectivity_score_brut was a [0,1] composite (higher = better)
+        CONNECT = FALSE    # now raw travel time in hours -> lower = better connected
       ),
       palette   = "RdYlGn",
       direction = -1

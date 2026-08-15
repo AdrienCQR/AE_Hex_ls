@@ -78,8 +78,8 @@ res <- run_all_indicators(
     woody_coefficient          = woody_coefficient,
     regeneration_years         = regeneration_years,
     wood_demand_per_ha_tobacco = wood_demand_per_ha_tobacco,
-    connectivity_access        = FILE_PATHS$connectivity_access,
-    connectivity_alpha         = connectivity_alpha
+    connectivity_access        = FILE_PATHS$connectivity_access
+    # connectivity_alpha       = connectivity_alpha   # unused — orientation blend disabled, see CONNECTIVITY.R
   ),
   synergy_opts = list(
     palette   = "viridis::magma",
@@ -102,6 +102,11 @@ normalize_min_max <- function(x) {
 
 composite_indicators <- indicators_results %>%
   select(scenario_id, all_of(AE_INDICATOR_COLS)) %>%
+  # connectivity_score_brut is now raw travel time to market (hours) — lower is
+  # better, unlike every other AE indicator column (higher is better). Flip its
+  # sign here (composite calc only, does not affect the map's raw column) so the
+  # min-max normalisation below keeps a consistent "higher normalised = better" direction.
+  mutate(connectivity_score_brut = -connectivity_score_brut) %>%
   mutate(across(all_of(AE_INDICATOR_COLS), normalize_min_max, .names = "{.col}_norm")) %>%
   rowwise() %>%
   mutate(

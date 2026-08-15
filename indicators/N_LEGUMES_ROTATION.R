@@ -1,6 +1,6 @@
 # N fixation from legume-maize rotation (groundnut).
 # Biomass and yield values from RAIZ experimental data.
-calculate_N_fixed <- function(indicators_results, NDFA_rate, HI_gdnuts, legume_share) {
+calculate_N_fixed <- function(indicators_results, NDFA_rate, HI_gdnuts, legume_share, maize_share) {
   above    <- 2907          # aboveground biomass (kg/ha)
   grain    <- 688           # grain yield (kg/ha)
   roots    <- 0.3 * above   # root biomass (30% of aboveground)
@@ -11,8 +11,11 @@ calculate_N_fixed <- function(indicators_results, NDFA_rate, HI_gdnuts, legume_s
   N_uptake   <- N_residues + N_grains
   NDFA       <- N_uptake * NDFA_rate  # N derived from atmosphere
   N_exported <- NDFA * HI_gdnuts      # N exported in harvested grain
-  N_fixed    <- NDFA - N_exported     # N remaining in system
-  N_legumes_fixed <- N_fixed * legume_share
+  N_fixed    <- NDFA - N_exported     # N remaining in system (kg N / ha legume)
+
+  # N available per ha of maize: net N fixed per ha of legume, scaled by the
+  # legume:maize area ratio (rotation is between maize and legumes only).
+  N_legumes_fixed <- N_fixed * (legume_share / maize_share)
 
   indicators_results$total_gdnut_grain_prod <- grain * legume_share * indicators_results$cropland_ha
   indicators_results$N_legumes_fixed        <- N_legumes_fixed

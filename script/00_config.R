@@ -112,10 +112,13 @@ residue_feed_share      <- 1.0
 damage_level            <- 0.70   # Fraction of yield remaining after losses
 
 # --- Connectivity parameters --------------------------------------------------
+# Land-use orientation dimension disabled (2026-08-15) — connectivity is now
+# physical accessibility only (travel time to market). connectivity_alpha is
+# unused; kept here commented out in case the orientation blend is restored.
 
 # Weight between orientation and accessibility dimensions of the connectivity indicator.
 # 0.5 = equal weight; adjust for sensitivity analysis.
-connectivity_alpha <- 0.5
+# connectivity_alpha <- 0.5
 
 # --- Wood parameters ----------------------------------------------------------
 

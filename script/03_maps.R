@@ -304,62 +304,82 @@ p <- do.call(create_discrete_map, c(list(
 save_map(p, "synergy_score_sum")
 
 # =============================================================================
-# 7. Connectivity — composite score (orientation + accessibility)
+# 7. Connectivity — physical accessibility (travel time to market, decimal hours)
 # =============================================================================
+# Land-use orientation dimension removed (2026-08-15): connectivity_score_brut
+# is now the raw physical accessibility score (mean travel time to nearest
+# market, in decimal hours) computed from the road network — lower = better
+# connected. See indicators/CONNECTIVITY.R and the backup
+# indicators/CONNECTIVITY_isoch_orientation.R for the previous composite version.
 
 map_data$connectivity_score_rd <- round(map_data$connectivity_score_brut, 2)
 
 p <- do.call(create_discrete_map, c(list(
   data              = map_data,
   variable          = "connectivity_score_rd",
-  legend_title      = "Local Food System\nConnectivity",
+  legend_title      = "Market Access\nTravel time (h)",
   n_classes         = 5, style = "jenks",
   use_paletteer     = TRUE,
-  paletteer_palette = "beyonce::X7",
+  paletteer_palette = "rcartocolor::Teal",
   direction         = -1
 ), bd))
 
-save_map(p, "connectivity_score_composite")
+save_map(p, "connectivity_travel_time")
 
-# =============================================================================
-# 7b. Connectivity — orientation sub-score
-# =============================================================================
-
-if ("orientation_score_brut" %in% colnames(map_data)) {
-  map_data$orientation_score_rd <- round(map_data$orientation_score, 2)
-
-  p <- do.call(create_discrete_map, c(list(
-    data              = map_data,
-    variable          = "orientation_score_rd",
-    legend_title      = "Local Food System\nOrientation\n(subsistence vs. export)",
-    n_classes         = 5, style = "jenks",
-    use_paletteer     = TRUE,
-    paletteer_palette = "beyonce::X7",
-    direction         = -1
-  ), bd))
-
-  save_map(p, "connectivity_orientation_score")
-}
-
-# =============================================================================
-# 7c. Connectivity — market accessibility sub-score
-# =============================================================================
-
-if ("accessibility_score_brut" %in% colnames(map_data)) {
-  map_data$accessibility_score_rd <- round(map_data$accessibility_score, 2)
-
-  p <- do.call(create_discrete_map, c(list(
-    data              = map_data,
-    variable          = "accessibility_score_rd",
-    legend_title      = "Market Physical\nAccessibility\n(proximity score)",
-    n_classes         = 5, style = "jenks",
-    use_paletteer     = TRUE,
-    paletteer_palette = "rcartocolor::Teal",
-    direction         = -1
-  ), bd))
-
-  save_map(p, "connectivity_accessibility_score")
-}
+# --- DISABLED (previous composite version: orientation + accessibility) ----
+# map_data$connectivity_score_rd <- round(map_data$connectivity_score_brut, 2)
+#
+# p <- do.call(create_discrete_map, c(list(
+#   data              = map_data,
+#   variable          = "connectivity_score_rd",
+#   legend_title      = "Local Food System\nConnectivity",
+#   n_classes         = 5, style = "jenks",
+#   use_paletteer     = TRUE,
+#   paletteer_palette = "beyonce::X7",
+#   direction         = -1
+# ), bd))
+#
+# save_map(p, "connectivity_score_composite")
+#
+# # =============================================================================
+# # 7b. Connectivity — orientation sub-score
+# # =============================================================================
+#
+# if ("orientation_score_brut" %in% colnames(map_data)) {
+#   map_data$orientation_score_rd <- round(map_data$orientation_score, 2)
+#
+#   p <- do.call(create_discrete_map, c(list(
+#     data              = map_data,
+#     variable          = "orientation_score_rd",
+#     legend_title      = "Local Food System\nOrientation\n(subsistence vs. export)",
+#     n_classes         = 5, style = "jenks",
+#     use_paletteer     = TRUE,
+#     paletteer_palette = "beyonce::X7",
+#     direction         = -1
+#   ), bd))
+#
+#   save_map(p, "connectivity_orientation_score")
+# }
+#
+# # =============================================================================
+# # 7c. Connectivity — market accessibility sub-score
+# # =============================================================================
+#
+# if ("accessibility_score_brut" %in% colnames(map_data)) {
+#   map_data$accessibility_score_rd <- round(map_data$accessibility_score, 2)
+#
+#   p <- do.call(create_discrete_map, c(list(
+#     data              = map_data,
+#     variable          = "accessibility_score_rd",
+#     legend_title      = "Market Physical\nAccessibility\n(proximity score)",
+#     n_classes         = 5, style = "jenks",
+#     use_paletteer     = TRUE,
+#     paletteer_palette = "rcartocolor::Teal",
+#     direction         = -1
+#   ), bd))
+#
+#   save_map(p, "connectivity_accessibility_score")
+# }
 
 # =============================================================================
 # 8. Equity (reversed Gini)
@@ -630,3 +650,48 @@ print(ward_ae_summary)
 
 #print the ward stat table all rows
 print(ward_ae_table, n=24)
+
+
+
+
+# Make a French version of the map for the aggregated score
+# =============================================================================
+# 10ter. Correction FR — légende "Wards" et fond de carte
+# =============================================================================
+# La version FR plus haut réutilisait `bd` (légende "Ward boundaries" en anglais).
+# On refait la carte avec bd_fr pour une légende entièrement en français.
+
+bd_fr <- list(
+  boundaries_sf      = ward_boundaries,
+  boundary_color     = "grey20",
+  boundary_width     = 0.6,
+  boundary_label     = "Limites\ndes wards",
+  add_ward_labels    = TRUE,
+  ward_label_column  = "wardname",
+  ward_label_size    = 3.5
+)
+
+map_data$ae_composite_score2 <- round(map_data$ae_composite_score, 2)
+
+p <- do.call(create_discrete_map, c(list(
+  data              = map_data,
+  variable          = "ae_composite_score2",
+  legend_title      = "Score\nd'Agroécologie",
+  n_classes         = 6, style = "jenks",
+  use_paletteer     = TRUE,
+  paletteer_palette = "LaCroixColoR::Orange",
+  direction         = 1,
+  alpha             = 0.65
+), bd_fr))
+
+# La fonction écrit "Basemap: OpenStreetMap contributors" en dur (basemap == "osm") :
+# on écrase le caption après coup pour le passer en français.
+p <- p + labs(caption = "Fond de carte : contributeurs OpenStreetMap")
+
+p
+
+ggsave(
+  filename = file.path(output_dir, "carte_fr_AE_composite_score.png"),
+  plot = p, width = 8, height = 7, dpi = 600, bg = "white"
+)
+cat("  Saved:", file.path(output_dir, "carte_fr_AE_composite_score.png"), "\n")
