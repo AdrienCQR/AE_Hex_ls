@@ -695,3 +695,8 @@ ggsave(
   plot = p, width = 8, height = 7, dpi = 600, bg = "white"
 )
 cat("  Saved:", file.path(output_dir, "carte_fr_AE_composite_score.png"), "\n")
+
+
+# Print mean median of ae_composite_score
+mean_ae <- mean(map_data$ae_composite_score, na.rm = TRUE)
+median_ae <- median(map_data$ae_composite_score, na.rm = TRUE)
